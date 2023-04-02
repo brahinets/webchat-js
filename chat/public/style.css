@@ -1,0 +1,31 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+#conversation {
+    padding: 10px;
+}
+
+.message {
+    margin-bottom: 10px;
+}
+
+.message .username {
+    font-weight: bold;
+}
+
+.message .text {
+    color: black;
+}
+
+#new-message-text {
+    border-radius: 3px;
+}
+
+#new-message-submit {
+    background-color: #007bff;
+    color: white;
+    border-radius: 3px;
+}

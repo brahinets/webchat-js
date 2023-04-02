@@ -3,37 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>Online Chat</title>
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
 <article id="conversation">
-    <ul id="messages"></ul>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-form" id="chat-form">
+        <label for="new-message-text">Jot down something</label>
+        <input type="text" id="new-message-text" required minlength="1" maxlength="32" placeholder="Type your message..."/>
+        <button onclick="sendMessage()" id="new-message-submit">Send</button>
+    </div>
 </article>
-
-<div class="preference">
-    <label for="message">Jot down something</label>
-    <input type="text" id="message" required minlength="1" maxlength="32"/>
-    <button onclick="sendMessage()">Send</button>
-</div>
 
 <script>
     const source = new EventSource('/register');
 
     source.onmessage = (event) => {
-        const chat = document.getElementById('messages');
-        const message = document.createElement('li');
         const response = JSON.parse(event.data);
-        message.textContent = `${response.clientName} says '${response.message}'`;
+
+        const chat = document.getElementById('chat-messages');
+        const message = document.createElement("div");
+        message.className = "message";
+        message.innerHTML = `
+          <span class="username">${response.clientName}</span> said
+          <span class="text">${response.message}</span>
+        `;
         chat.appendChild(message);
     };
 
     function sendMessage() {
-        const message = document.getElementById('message').value;
+        const message = document.getElementById('new-message-text').value;
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '/message');
         xhr.setRequestHeader('Content-Type', 'text/plain');
         xhr.send(message);
     }
 </script>
+
 </body>
 </html>
