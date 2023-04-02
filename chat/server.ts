@@ -1,6 +1,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import {v4 as uuidv4} from 'uuid';
+import {ChatService, Participant} from "./chat-service";
+
 
 const app: express = express()
 app.use(bodyParser.text());
@@ -8,7 +9,10 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(express.static('chat/public'))
 
-const clientsMap: Map<string, express.Response> = new Map<string, express.Response>();
+
+const clientsMap: Map<Participant, express.Response> = new Map<Participant, express.Response>();
+
+const chatService: ChatService = new ChatService();
 
 app.get('/register', (req: express.Request, res: express.Response): void => {
     res.writeHead(200, {
@@ -17,26 +21,31 @@ app.get('/register', (req: express.Request, res: express.Response): void => {
         'Connection': 'keep-alive'
     });
 
-    const clientID = uuidv4();
-    clientsMap.set(clientID, res);
+    let participant: Participant = chatService.registerUser();
+    clientsMap.set(participant, res);
 
     req.on('close', (): void => {
-        clientsMap.delete(clientID);
+        clientsMap.delete(participant);
     });
 });
 
 app.post('/message', (req, res): void => {
     const message: string = req.body;
 
-    clientsMap.forEach((clientConnection: express.Response, clientID: string): void => {
-        console.log(`Broadcasting message to ${clientID}`)
-        clientConnection.write(`data: ${message}\n\n`)
+    clientsMap.forEach((clientConnection: express.Response, participant: Participant): void => {
+        console.log(`Broadcasting message to ${participant.id}`)
+        clientConnection.write('data: ' + JSON.stringify({
+            clientID: participant.id,
+            clientName: participant.name,
+            message: message
+        }) + '\n\n');
     });
 
     res.sendStatus(200);
 });
 
 const port: number = 3000;
+
 app.listen(port, (): void => {
     console.log(`Server started on port ${port}`);
 });

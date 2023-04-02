@@ -22,7 +22,8 @@
     source.onmessage = (event) => {
         const chat = document.getElementById('messages');
         const message = document.createElement('li');
-        message.textContent = event.data;
+        const response = JSON.parse(event.data);
+        message.textContent = `${response.clientName} says '${response.message}'`;
         chat.appendChild(message);
     };
 
