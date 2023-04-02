@@ -1,10 +1,10 @@
 import express from 'express';
 
-const app = express()
+const app: express = express()
 
 app.use(express.static('chat/public'))
 
-const port = 3000;
-app.listen(port, () => {
+const port: number = 3000;
+app.listen(port, (): void => {
     console.log(`Server started on port ${port}`);
 });
