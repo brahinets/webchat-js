@@ -5,6 +5,34 @@
     <title>Online Chat</title>
 </head>
 <body>
-Welcome
+
+<article id="conversation">
+    <ul id="messages"></ul>
+</article>
+
+<div class="preference">
+    <label for="message">Jot down something</label>
+    <input type="text" id="message" required minlength="1" maxlength="32"/>
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+    const source = new EventSource('/register');
+
+    source.onmessage = (event) => {
+        const chat = document.getElementById('messages');
+        const message = document.createElement('li');
+        message.textContent = event.data;
+        chat.appendChild(message);
+    };
+
+    function sendMessage() {
+        const message = document.getElementById('message').value;
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/message');
+        xhr.setRequestHeader('Content-Type', 'text/plain');
+        xhr.send(message);
+    }
+</script>
 </body>
 </html>
