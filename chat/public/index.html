@@ -12,33 +12,43 @@
     <div class="chat-form" id="chat-form">
         <label for="new-message-text">Jot down something</label>
         <input type="text" id="new-message-text" required minlength="1" maxlength="32" placeholder="Type your message..."/>
-        <button onclick="sendMessage()" id="new-message-submit">Send</button>
+        <button id="new-message-submit">Send</button>
     </div>
 </article>
 
 <script>
-    const source = new EventSource('/register');
+    const joinChat = fetch("/join")
+        .then(r => r.json())
+        .then(data => {
+            return data;
+        });
 
-    source.onmessage = (event) => {
-        const response = JSON.parse(event.data);
+    window.onload = async () => {
+        const me = await joinChat;
 
-        const chat = document.getElementById('chat-messages');
-        const message = document.createElement("div");
-        message.className = "message";
-        message.innerHTML = `
-          <span class="username">${response.clientName}</span> said
-          <span class="text">${response.message}</span>
-        `;
-        chat.appendChild(message);
+        const source = new EventSource('/register?clientID=' + me.id);
+
+        source.onmessage = (event) => {
+            const response = JSON.parse(event.data);
+
+            const chat = document.getElementById('chat-messages');
+            const message = document.createElement("div");
+            message.className = "message";
+            message.innerHTML = `
+              <span class="username">${response.clientName}</span>
+              <span class="text">${response.message}</span>
+            `;
+            chat.appendChild(message);
+        };
+
+        document.getElementById("new-message-submit").onclick = function () {
+            const message = document.getElementById('new-message-text').value;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/message');
+            xhr.setRequestHeader('Content-Type', 'text/plain');
+            xhr.send(message);
+        }
     };
-
-    function sendMessage() {
-        const message = document.getElementById('new-message-text').value;
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/message');
-        xhr.setRequestHeader('Content-Type', 'text/plain');
-        xhr.send(message);
-    }
 </script>
 
 </body>

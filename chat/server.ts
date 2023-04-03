@@ -14,6 +14,12 @@ const clientsMap: Map<Participant, express.Response> = new Map<Participant, expr
 
 const chatService: ChatService = new ChatService();
 
+app.get('/join', (req, res): void => {
+    let participant: Participant = chatService.registerUser();
+
+    res.json(participant);
+});
+
 app.get('/register', (req: express.Request, res: express.Response): void => {
     res.writeHead(200, {
         'Content-Type': 'text/event-stream',
@@ -21,8 +27,21 @@ app.get('/register', (req: express.Request, res: express.Response): void => {
         'Connection': 'keep-alive'
     });
 
-    let participant: Participant = chatService.registerUser();
+    const id: string = req.query.clientID;
+    const participant: Participant = chatService.userById(id);
+    if(participant === undefined) {
+        return;
+    }
+
     clientsMap.set(participant, res);
+
+    clientsMap.forEach((clientConnection: express.Response, targetParticipant: Participant): void => {
+        console.log(`Broadcasting message to ${targetParticipant.id}`)
+        clientConnection.write('data: ' + JSON.stringify({
+            clientName: participant.name,
+            message: "has joined chat"
+        }) + '\n\n');
+    });
 
     req.on('close', (): void => {
         clientsMap.delete(participant);
@@ -35,7 +54,6 @@ app.post('/message', (req, res): void => {
     clientsMap.forEach((clientConnection: express.Response, participant: Participant): void => {
         console.log(`Broadcasting message to ${participant.id}`)
         clientConnection.write('data: ' + JSON.stringify({
-            clientID: participant.id,
             clientName: participant.name,
             message: message
         }) + '\n\n');

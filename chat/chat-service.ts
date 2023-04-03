@@ -12,6 +12,10 @@ export class ChatService {
         return participant;
     }
 
+    userById(id: string): Participant {
+        return this.participants.find((p: Participant):boolean => p.id === id);
+    }
+
     private generateName(): string {
         return uniqueNamesGenerator({
             dictionaries: [adjectives, starWars],
