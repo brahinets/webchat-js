@@ -20,6 +20,14 @@ body {
     color: black;
 }
 
+.message .text.me {
+    background-color: rgba(0, 255, 255, 0.66);
+}
+
+.message .text.other {
+    background-color: #f1f0f0;
+}
+
 #new-message-text {
     border-radius: 3px;
 }

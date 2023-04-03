@@ -56,6 +56,7 @@ app.post('/message', (req, res): void => {
         const author: Participant = chatService.userById(message.clientID);
 
         clientConnection.write('data: ' + JSON.stringify({
+            authorID: author.id,
             authorName: author.name,
             message: message.message
         }) + '\n\n');
