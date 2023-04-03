@@ -38,7 +38,7 @@ app.get('/register', (req: express.Request, res: express.Response): void => {
     clientsMap.forEach((clientConnection: express.Response, targetParticipant: Participant): void => {
         console.log(`Broadcasting message to ${targetParticipant.id}`)
         clientConnection.write('data: ' + JSON.stringify({
-            clientName: participant.name,
+            authorName: participant.name,
             message: "has joined chat"
         }) + '\n\n');
     });
@@ -49,13 +49,15 @@ app.get('/register', (req: express.Request, res: express.Response): void => {
 });
 
 app.post('/message', (req, res): void => {
-    const message: string = req.body;
+    const message = JSON.parse(req.body);
 
     clientsMap.forEach((clientConnection: express.Response, participant: Participant): void => {
         console.log(`Broadcasting message to ${participant.id}`)
+        const author: Participant = chatService.userById(message.clientID);
+
         clientConnection.write('data: ' + JSON.stringify({
-            clientName: participant.name,
-            message: message
+            authorName: author.name,
+            message: message.message
         }) + '\n\n');
     });
 

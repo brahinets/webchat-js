@@ -35,7 +35,7 @@
             const message = document.createElement("div");
             message.className = "message";
             message.innerHTML = `
-              <span class="username">${response.clientName}</span>
+              <span class="username">${response.authorName}</span>
               <span class="text">${response.message}</span>
             `;
             chat.appendChild(message);
@@ -46,7 +46,7 @@
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/message');
             xhr.setRequestHeader('Content-Type', 'text/plain');
-            xhr.send(message);
+            xhr.send(JSON.stringify({message: message, clientID: me.id}));
         }
     };
 </script>
