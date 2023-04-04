@@ -1,6 +1,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import {ChatService, Participant} from "./chat-service";
+import {Message} from "./message";
 
 
 const app: express = express()
@@ -35,6 +36,14 @@ app.get('/register', (req: express.Request, res: express.Response): void => {
 
     clientsMap.set(participant, res);
 
+    chatService.getAllMessages().forEach((message:Message) => {
+        res.write('data: ' + JSON.stringify({
+            authorID: message.authorID,
+            authorName: chatService.userById(message.authorID).name,
+            message: message.message
+        }) + '\n\n');
+    });
+
     clientsMap.forEach((clientConnection: express.Response, targetParticipant: Participant): void => {
         console.log(`Broadcasting message to ${targetParticipant.id}`)
         clientConnection.write('data: ' + JSON.stringify({
@@ -51,14 +60,17 @@ app.get('/register', (req: express.Request, res: express.Response): void => {
 app.post('/message', (req, res): void => {
     const message = JSON.parse(req.body);
 
+    let messageData:Message = new Message(message.clientID, message.message);
+    chatService.addMessage(messageData)
+
     clientsMap.forEach((clientConnection: express.Response, participant: Participant): void => {
         console.log(`Broadcasting message to ${participant.id}`)
-        const author: Participant = chatService.userById(message.clientID);
+        const author: Participant = chatService.userById(messageData.authorID);
 
         clientConnection.write('data: ' + JSON.stringify({
             authorID: author.id,
             authorName: author.name,
-            message: message.message
+            message: messageData.message
         }) + '\n\n');
     });
 
