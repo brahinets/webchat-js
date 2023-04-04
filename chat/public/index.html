@@ -36,7 +36,7 @@
             message.className = "message";
             message.innerHTML = `
               <span class="username">${response.authorName}</span>
-              <span class="text ${response.authorID === me.id ? "me" : "other"}">${response.message}</span>
+              <span class="text ${response.authorID === me.id ? "me" : "other"}">${response.text}</span>
             `;
             chat.appendChild(message);
         };
