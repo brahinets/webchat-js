@@ -26,19 +26,40 @@
     window.onload = async () => {
         const me = await joinChat;
 
-        const source = new EventSource('/register?clientID=' + me.id);
+        const source = new EventSource('/listen-messages?clientID=' + me.id);
+        const deletes = new EventSource('/listen-delete?clientID=' + me.id);
 
         source.onmessage = (event) => {
             const response = JSON.parse(event.data);
 
             const chat = document.getElementById('chat-messages');
             const message = document.createElement("div");
+
+            const deleteButton = document.createElement("button");
+            deleteButton.innerHTML = "Delete"
+            deleteButton.onclick = function () {
+                const xhr = new XMLHttpRequest();
+                xhr.open('DELETE', '/message');
+                xhr.setRequestHeader('Content-Type', 'text/plain');
+                xhr.send(JSON.stringify({messageID: response.id}));
+            }
+
+            message.id = response.id;
             message.className = "message";
             message.innerHTML = `
               <span class="username">${response.authorName}</span>
               <span class="text ${response.authorID === me.id ? "me" : "other"}">${response.text}</span>
             `;
+            message.append(deleteButton);
+
             chat.appendChild(message);
+        };
+
+        deletes.onmessage = (event) => {
+            const response = JSON.parse(event.data);
+            const messageId = response.messageID;
+
+            document.getElementById(messageId).remove()
         };
 
         document.getElementById("new-message-submit").onclick = function () {

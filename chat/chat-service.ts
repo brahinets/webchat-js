@@ -14,6 +14,18 @@ export class ChatService {
         return this.messages;
     }
 
+    deleteMessage(messageId: string): boolean {
+        // todo add security check for message ownership
+        for (let i: number = 0; i < this.messages.length; i++) {
+            if (messageId === this.messages[i].id) {
+                this.messages.splice(i, 1);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     registerUser(): Participant {
         let participant: Participant = new Participant(uuidv4(), this.generateName());
 
@@ -23,7 +35,7 @@ export class ChatService {
     }
 
     userById(id: string): Participant {
-        return this.participants.find((p: Participant):boolean => p.id === id);
+        return this.participants.find((p: Participant): boolean => p.id === id);
     }
 
     private generateName(): string {
