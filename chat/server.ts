@@ -1,8 +1,10 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import {ChatService, Participant} from "./chat-service";
+import {ChatService} from "./chat-service";
 import {Message, MessageDto} from "./message";
-
+import {Participant} from "./participant";
+import {UserRepository} from "./user-service";
+import {MessageRepository} from "./message-service";
 
 const app: express = express()
 app.use(bodyParser.text());
@@ -10,14 +12,12 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(express.static('chat/public'))
 
-
 const clientsMessageMap: Map<Participant, express.Response> = new Map<Participant, express.Response>();
 const clientsDeleteMap: Map<Participant, express.Response> = new Map<Participant, express.Response>();
-
-const chatService: ChatService = new ChatService();
+const chatService: ChatService = new ChatService(new UserRepository(), new MessageRepository());
 
 app.get('/join', (req, res): void => {
-    let participant: Participant = chatService.registerUser();
+    let participant: Participant = chatService.registerParticipant();
 
     res.json(participant);
 });
@@ -30,7 +30,7 @@ app.get('/listen-messages', (req: express.Request, res: express.Response): void 
     });
 
     const id: string = req.query.clientID;
-    const participant: Participant = chatService.userById(id);
+    const participant: Participant = chatService.findParticipant(id);
     if (participant === undefined) {
         return;
     }
@@ -61,7 +61,7 @@ app.get('/listen-delete', (req: express.Request, res: express.Response): void =>
     });
 
     const id: string = req.query.clientID;
-    const participant: Participant = chatService.userById(id);
+    const participant: Participant = chatService.findParticipant(id);
     if (participant === undefined) {
         return;
     }
@@ -73,12 +73,11 @@ app.get('/listen-delete', (req: express.Request, res: express.Response): void =>
     });
 });
 
-
 app.post('/message', (req, res): void => {
     const message = JSON.parse(req.body);
 
     const messageData: Message = new Message(message.clientID, message.message);
-    chatService.addMessage(messageData)
+    chatService.sendMessage(messageData)
 
     clientsMessageMap.forEach((clientConnection: express.Response, participant: Participant): void => {
         console.log(`Broadcasting message to ${participant.id}`)
@@ -91,7 +90,7 @@ app.post('/message', (req, res): void => {
 app.delete('/message', (req, res): void => {
     const deleteCommand = JSON.parse(req.body);
 
-    let deletedMessage: boolean = chatService.deleteMessage(deleteCommand.messageID);
+    const deletedMessage: boolean = chatService.deleteMessage(deleteCommand.messageID);
 
     if (deletedMessage) {
         clientsDeleteMap.forEach((clientConnection: express.Response, participant: Participant): void => {
@@ -104,7 +103,7 @@ app.delete('/message', (req, res): void => {
 });
 
 function toMessageDto(message: Message): MessageDto {
-    const author: Participant = chatService.userById(message.authorID);
+    const author: Participant = chatService.findParticipant(message.authorID);
     return new MessageDto(author.id, author.name, message.text, message.id);
 }
 

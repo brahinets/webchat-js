@@ -1,58 +1,35 @@
-import {adjectives, starWars, uniqueNamesGenerator} from "unique-names-generator";
-import {v4 as uuidv4} from 'uuid';
+import {UserRepository} from "./user-service";
+import {MessageRepository} from "./message-service";
+import {Participant} from "./participant";
 import {Message} from "./message";
 
 export class ChatService {
-    private participants: Participant[] = [];
-    private messages: Message[] = [];
+    private readonly messageRepository: MessageRepository;
+    private readonly userRepository: UserRepository;
 
-    addMessage(message: Message): void {
-        this.messages.push(message);
+    constructor(userRepository: UserRepository, messageRepository: MessageRepository) {
+        this.userRepository = userRepository;
+        this.messageRepository = messageRepository;
+    }
+
+    findParticipant(id: string): Participant {
+        return this.userRepository.userById(id);
+    }
+
+    registerParticipant(): Participant {
+        return this.userRepository.registerUser();
     }
 
     getAllMessages(): Message[] {
-        return this.messages;
+        return this.messageRepository.getAllMessages();
     }
 
-    deleteMessage(messageId: string): boolean {
-        // todo add security check for message ownership
-        for (let i: number = 0; i < this.messages.length; i++) {
-            if (messageId === this.messages[i].id) {
-                this.messages.splice(i, 1);
-                return true;
-            }
-        }
-
-        return false;
+    sendMessage(message: Message): void {
+        this.messageRepository.addMessage(message);
     }
 
-    registerUser(): Participant {
-        let participant: Participant = new Participant(uuidv4(), this.generateName());
-
-        this.participants.push(participant);
-
-        return participant;
-    }
-
-    userById(id: string): Participant {
-        return this.participants.find((p: Participant): boolean => p.id === id);
-    }
-
-    private generateName(): string {
-        return uniqueNamesGenerator({
-            dictionaries: [adjectives, starWars],
-            separator: " ",
-            style: "capital"
-        });
+    deleteMessage(id: string): boolean {
+        return this.messageRepository.deleteMessage(id);
     }
 }
 
-export class Participant {
-    readonly id: string;
-    readonly name: string;
-
-    constructor(id: string, name: string) {
-        this.id = id;
-        this.name = name;
-    }
-}
