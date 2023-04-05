@@ -2,7 +2,7 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import {ChatService} from "./chat-service";
 import {Message, MessageDto} from "./message";
-import {Participant} from "./participant";
+import {Participant, UserID} from "./participant";
 import {UserRepository} from "./user-service";
 import {MessageRepository} from "./message-service";
 
@@ -29,7 +29,7 @@ app.get('/listen-messages', (req: express.Request, res: express.Response): void 
         'Connection': 'keep-alive'
     });
 
-    const id: string = req.query.clientID;
+    const id: UserID = req.query.clientID;
     const participant: Participant = chatService.findParticipant(id);
     if (participant === undefined) {
         return;
@@ -60,7 +60,7 @@ app.get('/listen-delete', (req: express.Request, res: express.Response): void =>
         'Connection': 'keep-alive'
     });
 
-    const id: string = req.query.clientID;
+    const id: UserID = req.query.clientID;
     const participant: Participant = chatService.findParticipant(id);
     if (participant === undefined) {
         return;

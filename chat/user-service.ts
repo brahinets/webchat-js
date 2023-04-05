@@ -1,4 +1,4 @@
-import {Participant} from "./participant";
+import {Participant, UserID} from "./participant";
 import {adjectives, starWars, uniqueNamesGenerator} from "unique-names-generator";
 import {v4 as uuidv4} from 'uuid';
 
@@ -13,7 +13,7 @@ export class UserRepository {
         return participant;
     }
 
-    userById(id: string): Participant {
+    userById(id: UserID): Participant {
         return this.participants.find((p: Participant): boolean => p.id === id);
     }
 

@@ -1,7 +1,7 @@
 import {UserRepository} from "./user-service";
 import {MessageRepository} from "./message-service";
-import {Participant} from "./participant";
-import {Message} from "./message";
+import {Participant, UserID} from "./participant";
+import {Message, MessageID} from "./message";
 
 export class ChatService {
     private readonly messageRepository: MessageRepository;
@@ -12,7 +12,7 @@ export class ChatService {
         this.messageRepository = messageRepository;
     }
 
-    findParticipant(id: string): Participant {
+    findParticipant(id: UserID): Participant {
         return this.userRepository.userById(id);
     }
 
@@ -28,7 +28,7 @@ export class ChatService {
         this.messageRepository.addMessage(message);
     }
 
-    deleteMessage(id: string): boolean {
+    deleteMessage(id: MessageID): boolean {
         return this.messageRepository.deleteMessage(id);
     }
 }

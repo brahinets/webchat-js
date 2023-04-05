@@ -1,4 +1,4 @@
-import {Message} from "./message";
+import {Message, MessageID} from "./message";
 
 export class MessageRepository {
     private messages: Message[] = [];
@@ -11,7 +11,7 @@ export class MessageRepository {
         return this.messages;
     }
 
-    deleteMessage(id: string): boolean {
+    deleteMessage(id: MessageID): boolean {
         // todo add security check for message ownership
         for (let i: number = 0; i < this.messages.length; i++) {
             if (id === this.messages[i].id) {
