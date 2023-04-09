@@ -48,16 +48,14 @@
             message.id = response.id;
             message.className = "message";
             message.innerHTML = `
-                <section class="message-content">
+                <section class="message-body">
                     <header class="message-header">
                         <h4 class="username">${response.authorName}</h4>
                     </header>
-                    <div class="message-body">
-                        <p class="text ${response.authorID === me.id ? " me" : " other"}">${response.text}</p>
-                    </div>
+                    <p class="text ${response.authorID === me.id ? " me" : " other"}">${response.text}</p>
                 </section>
             `;
-            message.append(deleteButton);
+            message.appendChild(deleteButton);
 
             chat.appendChild(message);
         };
