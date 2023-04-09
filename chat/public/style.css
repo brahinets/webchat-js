@@ -28,11 +28,20 @@ body {
     background-color: #f1f0f0;
 }
 
-#new-message-text {
+.message-content {
+    display: flex;
+    flex-direction: row;
+}
+
+#send-message-text {
     border-radius: 3px;
 }
 
-#new-message-submit {
+.message-header {
+    margin-right: 10px;
+}
+
+#send-message-button {
     background-color: #007bff;
     color: white;
     border-radius: 3px;

@@ -7,14 +7,15 @@
 </head>
 <body>
 
-<article id="conversation">
-    <div class="chat-messages" id="chat-messages"></div>
-    <div class="chat-form" id="chat-form">
-        <label for="new-message-text">Jot down something</label>
-        <input type="text" id="new-message-text" required minlength="1" maxlength="32" placeholder="Type your message..."/>
-        <button id="new-message-submit">Send</button>
-    </div>
-</article>
+<main id="conversation">
+    <section class="chat-messages" id="chat-messages"></section>
+
+    <section class="chat-form" id="chat-form">
+        <label for="send-message-text">Jot down something</label>
+        <input type="text" id="send-message-text" class="message-input" placeholder="Type your message..."></input>
+        <button id="send-message-button">Send</button>
+    </section>
+</main>
 
 <script>
     const joinChat = fetch("/join")
@@ -33,7 +34,7 @@
             const response = JSON.parse(event.data);
 
             const chat = document.getElementById('chat-messages');
-            const message = document.createElement("div");
+            const message = document.createElement("article");
 
             const deleteButton = document.createElement("button");
             deleteButton.innerHTML = "Delete"
@@ -47,8 +48,14 @@
             message.id = response.id;
             message.className = "message";
             message.innerHTML = `
-              <span class="username">${response.authorName}</span>
-              <span class="text ${response.authorID === me.id ? "me" : "other"}">${response.text}</span>
+                <section class="message-content">
+                    <header class="message-header">
+                        <h4 class="username">${response.authorName}</h4>
+                    </header>
+                    <div class="message-body">
+                        <p class="text ${response.authorID === me.id ? " me" : " other"}">${response.text}</p>
+                    </div>
+                </section>
             `;
             message.append(deleteButton);
 
@@ -62,8 +69,8 @@
             document.getElementById(messageId).remove()
         };
 
-        document.getElementById("new-message-submit").onclick = function () {
-            const message = document.getElementById('new-message-text').value;
+        document.getElementById("send-message-button").onclick = function () {
+            const message = document.getElementById('send-message-text').value;
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/message');
             xhr.setRequestHeader('Content-Type', 'text/plain');
